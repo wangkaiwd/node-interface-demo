@@ -35,12 +35,15 @@ router.post('/register', (req, res) => {
     );
 });
 router.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, username } = req.body;
   User.findOne({ email })
     .then(
       user => {
-        if (!user) {return res.json({ code: 10000, data: {}, msg: '请先注册' });}
+        if (!user) {return res.json({ code: 10000, data: {}, msg: '邮箱未注册' });}
         const { password: hash, date, ...rest } = user.toObject();
+        if (rest.username !== username) {
+          return res.json({ code: 10000, data: {}, msg: '用户名错误' });
+        }
         bcrypt.compare(password, hash).then(
           isMatch => {
             if (isMatch) {
