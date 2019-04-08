@@ -2,12 +2,11 @@
  * Created by wangkai on 2019-04-01
  */
 const express = require('express');
-const passport = require('passport');
 const router = express.Router();
 const Profile = require('models/Profile');
 
 // 要通过认证，必须要在请求头中携带token： Authorization: '具体的token'
-router.post('/list', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.post('/list', (req, res) => {
   // 通过认证之后可以通过req.user获取用户信息
   Profile.find()
     .then(
@@ -20,7 +19,7 @@ router.post('/list', passport.authenticate('jwt', { session: false }), (req, res
     );
 });
 // 新增
-router.post('/add', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.post('/add', (req, res) => {
   Profile.create(req.body)
     .then(
       profile => {
@@ -35,7 +34,7 @@ router.post('/add', passport.authenticate('jwt', { session: false }), (req, res)
 });
 
 // 编辑
-router.post('/edit/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.post('/edit/:id', (req, res) => {
   Profile.updateOne({ _id: req.params.id }, { $set: req.body })
     .then(
       profile => {
@@ -49,7 +48,7 @@ router.post('/edit/:id', passport.authenticate('jwt', { session: false }), (req,
     );
 });
 
-router.delete('/delete/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.delete('/delete/:id', (req, res) => {
   const { id } = req.params;
   Profile.findByIdAndRemove(id)
     .then(
