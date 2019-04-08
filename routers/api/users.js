@@ -5,6 +5,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
+const passport = require('passport');
 const saltRounds = 10;
 const { privateKey } = require('config/common');
 const router = express.Router();
@@ -48,6 +49,7 @@ router.post('/login', (req, res) => {
           isMatch => {
             if (isMatch) {
               const token = jwt.sign(rest, privateKey, { expiresIn: '2h' });
+              User.findOneAndUpdate({ _id: user.id }, { $set: { token } });
               res.json({ code: 0, data: { ...rest, token: `bearer ${token}` }, msg: '成功' });
             } else {
               res.json({ code: 0, data: {}, msg: '密码错误' });
@@ -57,6 +59,22 @@ router.post('/login', (req, res) => {
       },
       err => console.log(err)
     );
+});
+
+router.post('/logout', passport.authenticate('jwt', { session: false }), (req, res) => {
+  // console.log(req.user);
+  // const { password, date, ...rest } = req.user;
+  // User.findById(req.user.id)
+  //   .then(
+  //     user => {
+  //       console.log('user', user);
+  //       jwt.verify(user.token, privateKey, { maxAge: '60' }, (err, decode) => {
+  //         console.log(err);
+  //         console.log(decode);
+  //       });
+  //     }
+  //   );
+  res.json({ code: 0, data: {}, msg: '成功' });
 });
 
 module.exports = router;
