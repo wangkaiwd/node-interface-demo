@@ -62,6 +62,7 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
+  console.log('user', req.user);
   User.findOneAndUpdate(req.user.id)
     .then(
       user => {

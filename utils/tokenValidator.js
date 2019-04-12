@@ -23,9 +23,9 @@ const tokenValidator = (req, res, next) => {
   User.findOne({ token: clientToken })
     .then(
       user => {
-        console.log('user', user);
         if (user) {
           passport.authenticate('jwt', { session: false });
+          req.user = user.toObject();
           next();
         } else {
           res.status(401).json({ code: 10000, data: {}, msg: '用户身份失效' });
