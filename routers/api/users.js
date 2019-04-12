@@ -48,9 +48,9 @@ router.post('/login', (req, res) => {
           isMatch => {
             if (isMatch) {
               const token = jwt.sign(rest, privateKey, { expiresIn: '2h' });
-              user.token = `bearer ${token}`;
+              user.token = token;
               user.save();
-              res.json({ code: 0, data: { ...rest, token: `bearer ${token}` }, msg: '成功' });
+              res.json({ code: 0, data: { ...rest, token }, msg: '成功' });
             } else {
               res.json({ code: 0, data: {}, msg: '密码错误' });
             }
@@ -62,8 +62,7 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  console.log('user', req.user);
-  User.findOneAndUpdate(req.user.id)
+  User.findByIdAndUpdate(req.user.id)
     .then(
       user => {
         user.token = 0;

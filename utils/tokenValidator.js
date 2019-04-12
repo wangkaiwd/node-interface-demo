@@ -3,8 +3,9 @@
  * token校验
  */
 
-const passport = require('passport');
 const User = require('models/User');
+const jwt = require('jsonwebtoken');
+const { privateKey } = require('config/common');
 const whiteList = {
   get: [],
   post: ['/users/login', '/users/register']
@@ -19,14 +20,21 @@ const whiteList = {
 const tokenValidator = (req, res, next) => {
   const { method, url } = req;
   if (whiteList[method.toLowerCase()].includes(url)) return next();
-  const clientToken = req.get('authorization');
-  User.findOne({ token: clientToken })
+  const token = req.get('authorization');
+  if (!token) {res.status(404).json({ code: 10000, dat: {}, msg: 'there is no token, please to login' });}
+  // 退出之后token变为0，就查询到内容
+  User.findOne({ token })
     .then(
       user => {
         if (user) {
-          passport.authenticate('jwt', { session: false });
-          req.user = user.toObject();
-          next();
+          // 即使查到了用户，但是也有可能token失效
+          jwt.verify(token, privateKey, (error, decode) => {
+            if (error) {
+              res.status(404).json({ code: 0, data: {}, msg: 'token error' });
+            }
+            req.user = user.toObject();
+            next();
+          });
         } else {
           res.status(401).json({ code: 10000, data: {}, msg: '用户身份失效' });
         }

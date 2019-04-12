@@ -2,7 +2,6 @@ require('./utils/pathAlias');
 require('utils/mongoConnect');
 const express = require('express');
 const bodyParser = require('body-parser');
-const passport = require('passport');
 const tokenValidator = require('utils/tokenValidator');
 const app = express();
 const PORT = 5000;
@@ -12,9 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.use(passport.initialize());
 app.use('/api', tokenValidator);
-require('utils/passport');
 app.use('/api/users', require('routers/api/users'));
 app.use('/api/profiles', require('routers/api/profiles'));
 
