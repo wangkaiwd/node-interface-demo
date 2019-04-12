@@ -7,15 +7,27 @@ const Profile = require('models/Profile');
 
 // 要通过认证，必须要在请求头中携带token： Authorization: '具体的token'
 router.post('/list', (req, res) => {
+  const { currentPage, pageSize } = req.body;
+  const skip = (currentPage - 1) * pageSize;
   // 通过认证之后可以通过req.user获取用户信息
-  Profile.find()
+  Profile.find({}, null, { skip, limit: pageSize })
     .then(
       (profile = []) => {
         // toObject方法只能对一条文档使用
         const result = profile.map(item => item.toObject());
-        res.json({ code: 0, data: { data: result }, msg: '成功' });
+        Profile.count().then(
+          count => {
+            res.json(
+              {
+                code: 0,
+                data: {data: result,currentPage,pageSize,totalCount:count},
+                msg: '成功'
+              }
+            );
+          }
+        )
       },
-      err => console.log(err)
+      err => console.log('find', err)
     );
 });
 // 新增
@@ -24,7 +36,7 @@ router.post('/add', (req, res) => {
     .then(
       profile => {
         if (profile) {
-          res.json({ code: 0, data: {}, msg: '成功' });
+          res.json({ code: 0, data: {}, msg: '新增成功' });
         } else {
           res.json({ code: 10001, data: {}, msg: '新增出错' });
         }
@@ -34,12 +46,12 @@ router.post('/add', (req, res) => {
 });
 
 // 编辑
-router.post('/edit/:id', (req, res) => {
-  Profile.updateOne({ _id: req.params.id }, { $set: req.body })
+router.post('/edit', (req, res) => {
+  Profile.updateOne({ _id: req.body.id }, { $set: req.body })
     .then(
       profile => {
         if (profile) {
-          res.json({ code: 0, data: {}, msg: '成功' });
+          res.json({ code: 0, data: {}, msg: '编辑成功' });
         } else {
           res.json({ code: 10001, data: {}, msg: '没有找到数据' });
         }
@@ -48,8 +60,8 @@ router.post('/edit/:id', (req, res) => {
     );
 });
 
-router.delete('/delete/:id', (req, res) => {
-  const { id } = req.params;
+router.post('/delete', (req, res) => {
+  const { id } = req.body;
   Profile.findByIdAndRemove(id)
     .then(
       profile => {
