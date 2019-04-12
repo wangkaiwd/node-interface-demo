@@ -15,7 +15,7 @@ router.post('/list', (req, res) => {
       (profile = []) => {
         // toObject方法只能对一条文档使用
         const result = profile.map(item => item.toObject());
-        Profile.count().then(
+        Profile.countDocuments().then(
           count => {
             res.json(
               {
