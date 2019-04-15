@@ -11,7 +11,7 @@ const whiteList = {
   post: ['/users/login', '/users/register']
 };
 /**
- * token验证中间件：根据白名单过滤，将剩余接口进行token验证
+ * token验证中间件：根据白名单过滤，将剩余接口进行token验证，并且重置token过期时间
  * @param req
  * @param res
  * @param next

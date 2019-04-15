@@ -60,7 +60,19 @@ router.post('/login', (req, res) => {
       err => console.log(err)
     );
 });
-
+router.get('/authentication',(req,res) => {
+  const {password,date,...rest} = req.user
+  const newToken = jwt.sign(rest,privateKey,{expiresIn: '2h'})
+  User.findById(rest.id)
+    .then(
+      user => {
+        user.token = newToken;
+        user.save();
+        res.json({code: 0,data: {token: newToken,...rest},msg:'成功'});
+      },
+      err => console.log(err)
+    )
+})
 router.post('/logout', (req, res) => {
   User.findByIdAndUpdate(req.user.id)
     .then(
